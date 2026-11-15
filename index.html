@@ -126,6 +126,31 @@ h1{font-size:clamp(19px,4.4vw,27px);margin:0;letter-spacing:.5px}
 .hint-line{position:absolute;left:20px;right:20px;top:386px;height:26px;line-height:26px;text-align:center;
   font-size:16px;font-weight:700;color:#7d8da8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
+/* ---------- 板书式凑十（练习册分合图） ---------- */
+.board{position:absolute;inset:0;display:none;z-index:2}
+.board-svg{position:absolute;left:0;top:0;width:720px;height:420px;pointer-events:none}
+.bl{fill:none;stroke:#c7d6ee;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .4s,stroke-width .4s}
+.bl.lit{stroke:#f0a127;stroke-width:4;animation:lineGlow .55s ease}
+.bl.hot.lit{stroke:#2ec28c}
+.bl.cool.lit{stroke:#8f7bff}
+.bl-plus{font-size:22px;font-weight:900;fill:#6b7f9e}
+@keyframes lineGlow{0%{stroke-width:3}50%{stroke-width:6}100%{stroke-width:4}}
+.bn{position:absolute;display:flex;align-items:center;justify-content:center;font-weight:900}
+.be-num{top:26px;width:64px;height:62px;font-size:36px;border-radius:16px;background:#eaf2ff;border:3px solid #c9dcfb;color:#2a5ea8}
+.be-num.split{background:#fff2d8;border-color:#f8cf83;color:#c9800d;animation:bob 1.4s ease-in-out infinite}
+.be-op{top:26px;width:34px;height:62px;font-size:30px;color:#8494b0}
+.be-sum{top:26px;width:80px;height:62px;font-size:34px;border-radius:16px;background:#fff0c2;border:3px dashed #f5b73b;color:#d98b00}
+.be-sum.done{background:#ddf8ec;border:3px solid #93e5c2;color:#11875c;animation:pop .6s ease-out}
+.bx{width:76px;height:56px;top:150px;border:3px dashed #c9d8ef;border-radius:14px;background:#fff;font-size:30px;color:#2a5ea8}
+.bx.need{border-color:#f4bb55}
+.bx.rest{border-color:#b6a4f2}
+.bx.filled{border-style:solid;animation:pop .55s ease-out}
+.bx.need.filled{background:#fff2d8;color:#c9800d}
+.bx.rest.filled{background:#f0eaff;color:#7053cc}
+.ten-chip{width:66px;height:44px;top:236px;border-radius:12px;background:#ddf8ec;border:3px solid #93e5c2;color:#11875c;font-size:27px;opacity:1;transform:scale(1)}
+.ten-chip.flash{animation:tenFlash .6s ease-out}
+@keyframes tenFlash{0%{transform:scale(.6);opacity:.4}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+
 /* ---------- 答题区 ---------- */
 .question{margin-top:14px;background:#fff;border:2px solid var(--line);border-radius:22px;padding:16px;
   box-shadow:0 10px 26px #2b4b7a10}
@@ -200,6 +225,11 @@ footer{text-align:center;margin-top:20px;font-size:12px;color:#9aa8bd;line-heigh
   <symbol id="i-wand" viewBox="0 0 24 24"><path d="M13 2.5 15 8l5.5 2-5.5 2-2 5.5-2-5.5L5.5 10 11 8l2-5.5zM4 16l.9 2.1L7 19l-2.1.9L4 22l-.9-2.1L1 19l2.1-.9L4 16zm15 1 .7 1.3L21 19l-1.3.7L19 21l-.7-1.3L17 19l1.3-.7L19 17z"/></symbol>
   <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 19h6m-5.5 2.5h5M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.6.5 1 1.2 1.1 2l.1.7h5.2l.1-.7c.1-.8.5-1.5 1.1-2A6.5 6.5 0 0 0 12 2.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-logo" viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5zm0 3.2 5.8 3.2L12 11.7 6.2 8.4 12 5.2zM5.5 9.9l5.8 3.2v6.1l-5.8-3.2V9.9zm7.2 9.3v-6.1l5.8-3.2V16l-5.8 3.2z"/></symbol>
+  <symbol id="i-board" viewBox="0 0 24 24">
+    <path d="M12 3v4m0 0-6 5m6-5 6 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="2" y="12" width="8" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+    <rect x="14" y="12" width="8" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+  </symbol>
 </svg>
 
 <div class="app">
@@ -220,11 +250,14 @@ footer{text-align:center;margin-top:20px;font-size:12px;color:#9aa8bd;line-heigh
   <nav class="tabs" role="tablist" aria-label="练习模式">
     <button class="tab active" data-mode="split" type="button" role="tab" aria-selected="true"><svg class="ico"><use href="#i-split"/></svg>数的分解</button>
     <button class="tab" data-mode="ten" type="button" role="tab" aria-selected="false"><svg class="ico"><use href="#i-ten"/></svg>凑十法</button>
+    <button class="tab" data-mode="board" type="button" role="tab" aria-selected="false"><svg class="ico"><use href="#i-board"/></svg>凑十板书</button>
   </nav>
 
   <div class="settings">
     <span class="set-label">出题范围</span>
     <div class="seg" id="segLevel"></div>
+    <span class="set-label" id="layoutLabel" style="display:none">分合图版式</span>
+    <div class="seg" id="segLayout" style="display:none"></div>
     <label class="toggle"><input type="checkbox" id="autoNext">连续自动出题</label>
   </div>
 
@@ -243,6 +276,24 @@ footer{text-align:center;margin-top:20px;font-size:12px;color:#9aa8bd;line-heigh
       <div class="stage-label" id="trayLabel"></div>
       <div class="tray" id="tray"></div>
 
+      <div class="board" id="board">
+        <svg class="board-svg" id="boardSvg" viewBox="0 0 720 420" aria-hidden="true">
+          <path id="blForkL" class="bl" pathLength="100" d=""/>
+          <path id="blForkR" class="bl" pathLength="100" d=""/>
+          <path id="blBrace" class="bl hot" pathLength="100" d=""/>
+          <path id="blBottom" class="bl cool" pathLength="100" d=""/>
+          <text id="blPlus1" class="bl-plus" x="0" y="0">+</text>
+          <text id="blPlus2" class="bl-plus" x="0" y="0">+</text>
+        </svg>
+        <div class="bn be-num" id="beA" style="left:222px"></div>
+        <div class="bn be-op" id="bePlus1" style="left:286px">+</div>
+        <div class="bn be-num" id="beB" style="left:320px"></div>
+        <div class="bn be-op" id="beEq" style="left:384px">=</div>
+        <div class="bn be-sum" id="beSum" style="left:418px"></div>
+        <div class="bn bx" id="bxL" style="left:286px"></div>
+        <div class="bn bx" id="bxR" style="left:394px"></div>
+        <div class="bn ten-chip" id="boardTen">10</div>
+      </div>
       <div class="balls" id="balls"></div>
       <div class="eq" id="eq"></div>
       <div class="hint-line" id="hintLine"></div>
@@ -288,7 +339,7 @@ var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: r
 var DUR = REDUCED ? 1 : 620;
 
 var S = {
-  mode:'split', splitLevel:'mix', tenLevel:'mix', sound:true, autoNext:false,
+  mode:'split', splitLevel:'mix', tenLevel:'mix', boardLevel:'mix', boardLayout:'mix', sound:true, autoNext:false,
   star:0, combo:0, token:0, timers:[], demo:false, demoId:0, problem:null
 };
 
@@ -405,6 +456,8 @@ function stageView(which){
   $('pool').style.display = split?'block':'none';
   $('poolLabel').style.display = split?'block':'none';
   if(split) $('pool').classList.remove('empty');
+  $('board').style.display = which==='board'?'block':'none';
+  if(which==='board') $('stageTitle').textContent='';
 }
 function buildFrameCells(){
   for(var i=0;i<10;i++){
@@ -642,12 +695,118 @@ function tenFinish(){
   },'十加 '+rest+' 等于几');
 }
 
+/* ================= 模式三：板书式分合图凑十 ================= */
+function pickBoardAB(){
+  var minSum=S.boardLevel==='hard'?15:11;
+  var maxSum=S.boardLevel==='easy'?13:18;
+  var a,b,guard=0;
+  do{ a=rand(2,9); b=rand(2,9); guard++; }
+  while((a+b<=10||a+b<minSum||a+b>maxSum)&&guard<300);
+  return {a:a,b:b};
+}
+function resetBoardLines(){
+  var els=$('boardSvg').querySelectorAll('.bl');
+  for(var i=0;i<els.length;i++) els[i].classList.remove('lit');
+  $('boardTen').classList.remove('flash');
+}
+function drawBoardSkeleton(p){
+  var second=p.target==='second';
+  var cx=second?352:254, yx=second?254:384;
+  var needCx=second?324:432, restCx=second?432:324;
+  var tenLeft=second?256:375, tenCx=tenLeft+33;
+  $('beA').textContent=String(p.a);
+  $('beB').textContent=String(p.b);
+  $('beA').className='bn be-num'+(second?'':' split');
+  $('beB').className='bn be-num'+(second?' split':'');
+  $('beSum').textContent=''; $('beSum').className='bn be-sum';
+  $('bxL').textContent=''; $('bxR').textContent='';
+  $('bxL').className='bn bx '+(second?'need':'rest');
+  $('bxR').className='bn bx '+(second?'rest':'need');
+  $('boardTen').className='bn ten-chip';
+  $('boardTen').style.left=tenLeft+'px';
+  $('blForkL').setAttribute('d','M '+cx+' 92 L 324 148');
+  $('blForkR').setAttribute('d','M '+cx+' 92 L 432 148');
+  $('blBrace').setAttribute('d','M '+yx+' 92 V 252 H '+needCx+' V 212');
+  $('blBottom').setAttribute('d','M '+tenCx+' 284 V 300 H '+restCx+' V 212');
+  $('blPlus1').setAttribute('x',String(yx+16)); $('blPlus1').setAttribute('y','246');
+  $('blPlus2').setAttribute('x',String(Math.round((tenCx+restCx)/2))); $('blPlus2').setAttribute('y','294');
+  resetBoardLines();
+}
+function genBoard(forced){
+  var tk=bump(); forced=forced||{};
+  var ab = forced.a!==undefined ? {a:forced.a,b:forced.b} : pickBoardAB();
+  var a=ab.a,b=ab.b,sum=a+b;
+  var target = forced.target || (S.boardLayout==='mix' ? (Math.random()<0.5?'second':'first') : S.boardLayout);
+  var X=target==='second'?b:a, Y=target==='second'?a:b;
+  var need=10-Y, rest=X-need;
+  var p={kind:'board',a:a,b:b,sum:sum,target:target,X:X,Y:Y,need:need,rest:rest,step:0,phase:'ask'};
+  S.problem=p;
+  stageView('board'); hideAllBalls(); lightCells(0,0,'need');
+  drawBoardSkeleton(p);
+  setEq([num(a,'blue'),op('+'),num(b,'orange'),op('='),num('?','unknown')]);
+  setHint(target==='second'?'拆第二个数，补第一个数凑成 10':'拆第一个数，补第二个数凑成 10');
+  var q='第一步：'+Y+' 再添几个就是 10？（从 '+X+' 里借）';
+  ask(q,optionsFor(need,1,8),need,function(){
+    celebrate('对啦！借 '+need+' 个凑成 10',function(){ boardStep1(tk); },false);
+  },q);
+}
+function boardStep1(tk){
+  var p=S.problem; if(!p||p.kind!=='board') return;
+  var needBox=p.target==='second'?$('bxL'):$('bxR');
+  $('blForkL').classList.add('lit');
+  later(function(){ $('blForkR').classList.add('lit'); },180);
+  later(function(){
+    needBox.textContent=String(p.need); needBox.classList.add('filled');
+    $('blBrace').classList.add('lit');
+  },520);
+  later(function(){ $('boardTen').classList.add('flash'); },900);
+  setEq([num(p.X,'purple'),op('='),num(p.need,'orange'),op('+'),num('?','unknown')]);
+  setHint(p.Y+' + '+p.need+' = 10，再看拆剩下的数');
+  wait(1350).then(function(){
+    if(tk!==S.token) return;
+    p.step=1;
+    var q='第二步：'+p.X+' 拆走 '+p.need+' 个，还剩几个？';
+    ask(q,optionsFor(p.rest,1,9),p.rest,function(){
+      celebrate('没错！还剩 '+p.rest+' 个',function(){ boardStep2(tk); },false);
+    },q);
+  });
+}
+function boardStep2(tk){
+  var p=S.problem; if(!p||p.kind!=='board') return;
+  var restBox=p.target==='second'?$('bxR'):$('bxL');
+  restBox.textContent=String(p.rest); restBox.classList.add('filled');
+  $('blBottom').classList.add('lit');
+  setEq([num(10,'green'),op('+'),num(p.rest,'orange'),op('='),num('?','unknown')]);
+  setHint('凑成十，加剩数');
+  wait(850).then(function(){
+    if(tk!==S.token) return;
+    p.step=2;
+    var q='第三步：10 + '+p.rest+' = ?';
+    ask(q,optionsFor(p.sum,11,18),p.sum,function(){
+      p.phase='done';
+      boardFinal();
+    },q);
+  });
+}
+function boardFinal(){
+  var p=S.problem;
+  $('beSum').textContent=String(p.sum); $('beSum').classList.add('done');
+  setEq([num(p.a,'blue'),op('+'),num(p.b,'orange'),op('='),num(p.sum,'green hot')]);
+  setHint('思路：'+p.a+'+'+p.b+' → '+p.Y+'+'+p.need+'=10 → 10+'+p.rest+'='+p.sum);
+  celebrate('太棒了！'+p.a+' + '+p.b+' = '+p.sum,function(){ if(S.autoNext && !S.demo) genBoard(); },true);
+}
+
 /* ================= 公共操作 ================= */
-function newProblem(){ if(S.mode==='split') genSplit(); else genTen(); }
+function newProblem(){
+  if(S.mode==='split') genSplit();
+  else if(S.mode==='board') genBoard();
+  else genTen();
+}
 function repeatCurrent(){
   var p=S.problem;
   if(!p) return newProblem();
   if(p.kind==='split') genSplit({n:p.n,k:p.k,type:p.type,hide:p.hide});
+  else if(p.kind==='board') genBoard({a:p.a,b:p.b,target:p.target});
   else genTen({a:p.a,b:p.b});
 }
 function showHint(){
@@ -658,6 +817,10 @@ function showHint(){
     if(p.type==='whole') pulse(0,p.n);
     else if(p.hide==='left') pulse(0,p.k);
     else pulse(p.k,p.n);
+  }else if(p.kind==='board'){
+    if(p.step===0) t='先看没拆的数 '+p.Y+'，还差 '+p.need+' 个凑成 10，要从 '+p.X+' 里借。';
+    else if(p.step===1) t=p.X+' 拆走 '+p.need+' 个，剩下 '+p.rest+' 个。';
+    else t='10 再往后数 '+p.rest+' 个，就是 '+p.sum+'。';
   }else{
     if(p.step===0){ t='数一数，十格阵还空着 '+p.need+' 个格子，就要从 '+p.b+' 里借 '+p.need+' 个。'; lightCells(p.a,10,'need'); }
     else if(p.step===1){ t=p.b+' 拆走 '+p.need+' 个，剩下的是 '+p.rest+' 个。'; pulse(10,10+p.rest); }
@@ -702,6 +865,8 @@ function switchMode(m){
   $('cheatsheet').style.display = m==='split'?'block':'none';
   if(m==='split'){
     $('rhyme').innerHTML='分与合口诀：一个数，分两堆；分出去，合回来<small>总数 = 左边 + 右边，知道两个数就能求出第三个</small>';
+  }else if(m==='board'){
+    $('rhyme').innerHTML='分合图凑十：拆一个数，补另一个数，先凑成 10，再加剩下的<small>方框里填拆出来的两个数；拆第二个数和拆第一个数两种版式都要会</small>';
   }else{
     $('rhyme').innerHTML='凑十法口诀：看大数，拆小数，凑成十，加剩数<small>例：8 + 5 = 8 + 2 + 3 = 10 + 3 = 13</small>';
   }
@@ -710,19 +875,42 @@ function switchMode(m){
   newProblem();
 }
 function renderSettings(){
-  var levels = S.mode==='split'
-    ? [['mix','全部'],['easy','2~5'],['mid','6~9'],['ten','只练 10']]
-    : [['mix','全部'],['easy','简单'],['hard','挑战']];
-  var cur = S.mode==='split'?S.splitLevel:S.tenLevel;
+  var levels, cur;
+  if(S.mode==='split'){
+    levels=[['mix','全部'],['easy','2~5'],['mid','6~9'],['ten','只练 10']];
+    cur=S.splitLevel;
+  }else if(S.mode==='board'){
+    levels=[['mix','全部'],['easy','简单'],['hard','挑战']];
+    cur=S.boardLevel;
+  }else{
+    levels=[['mix','全部'],['easy','简单'],['hard','挑战']];
+    cur=S.tenLevel;
+  }
   var html='';
   levels.forEach(function(l){ html+='<button type="button" data-lv="'+l[0]+'" class="'+(l[0]===cur?'on':'')+'">'+l[1]+'</button>'; });
   $('segLevel').innerHTML=html;
   var btns=$('segLevel').querySelectorAll('button');
   for(var i=0;i<btns.length;i++){
     btns[i].onclick=function(){
-      if(S.mode==='split') S.splitLevel=this.dataset.lv; else S.tenLevel=this.dataset.lv;
+      var lv=this.dataset.lv;
+      if(S.mode==='split') S.splitLevel=lv;
+      else if(S.mode==='board') S.boardLevel=lv;
+      else S.tenLevel=lv;
       renderSettings(); newProblem();
     };
+  }
+  var isBoard=S.mode==='board';
+  $('layoutLabel').style.display=isBoard?'inline':'none';
+  $('segLayout').style.display=isBoard?'flex':'none';
+  if(isBoard){
+    var ls=[['mix','两种版式'],['second','拆第二个数'],['first','拆第一个数']];
+    var h='';
+    ls.forEach(function(l){ h+='<button type="button" data-lo="'+l[0]+'" class="'+(l[0]===S.boardLayout?'on':'')+'">'+l[1]+'</button>'; });
+    $('segLayout').innerHTML=h;
+    var lbs=$('segLayout').querySelectorAll('button');
+    for(var j=0;j<lbs.length;j++){
+      lbs[j].onclick=function(){ S.boardLayout=this.dataset.lo; renderSettings(); newProblem(); };
+    }
   }
 }
 function buildCheatsheet(){
@@ -760,7 +948,7 @@ function bindEvents(){
 /* ---------- 启动 ---------- */
 initBalls(); buildFrameCells(); buildCheatsheet(); bindEvents();
 var startMode=new URLSearchParams(window.location.search).get('mode');
-S.mode = startMode==='ten'?'ten':'split';
+S.mode = (startMode==='ten'||startMode==='board')?startMode:'split';
 switchMode(S.mode);
 fitStage();
 setTimeout(fitStage,80);
