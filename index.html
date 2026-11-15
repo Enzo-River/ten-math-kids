@@ -42,6 +42,8 @@ h1{font-size:clamp(19px,4.4vw,27px);margin:0;letter-spacing:.5px}
   border-radius:999px;padding:8px 13px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px #2b4b7a0d}
 .icon-btn.off{color:#a6b2c6}
 .icon-btn:active{transform:translateY(1px)}
+.set-toggle{display:none;align-items:center;gap:5px;padding:5px 11px;font-size:13px}
+.set-toggle .ico{width:16px;height:16px}
 
 /* ---------- 模式与设置 ---------- */
 .tabs{display:flex;gap:6px;background:#fff;border:2px solid var(--line);border-radius:20px;padding:6px;
@@ -239,7 +241,7 @@ body.mode-board .bl-plus{font-size:20px}
 /* ---------- Pad / 桌面：板书模式一屏排布，无需滚动 ---------- */
 @media (min-width:700px){
   body.mode-board{height:100vh;height:100dvh;overflow:hidden}
-  body.mode-board .app{max-width:1000px;height:100vh;height:100dvh;padding:8px 16px 10px;
+  body.mode-board .app{max-width:1200px;height:100vh;height:100dvh;padding:8px 16px 10px;
     display:flex;flex-direction:column;gap:8px;overflow:hidden}
   body.mode-board .top{margin:0;flex:none;flex-wrap:nowrap}
   body.mode-board .brand-mark{width:38px;height:38px;border-radius:12px}
@@ -250,7 +252,14 @@ body.mode-board .bl-plus{font-size:20px}
   body.mode-board .icon-btn{padding:5px 11px;font-size:13px}
   body.mode-board .tabs{padding:4px;flex:none;border-radius:15px}
   body.mode-board .tab{padding:8px 6px;font-size:15px;border-radius:11px}
-  body.mode-board .settings{margin:0;flex:none;gap:8px;flex-wrap:nowrap}
+  body.mode-board .set-toggle{display:flex}
+  body.mode-board .settings{display:none;margin:0;flex:none;gap:8px;flex-wrap:nowrap}
+  body.mode-board.set-open .settings{display:flex}
+  /* 精简：小教练气泡≈题目、口诀条≈三步条、舞台底部版式说明——单屏时隐藏重复文字 */
+  body.mode-board .board-coach{display:none}
+  body.mode-board .rhyme{display:none}
+  body.mode-board .hint-line{display:none}
+  body.mode-board .step-body small{display:none}
   body.mode-board .set-label{font-size:13px}
   body.mode-board .seg button{padding:5px 9px;font-size:12px}
   body.mode-board .toggle{font-size:13px}
@@ -326,6 +335,7 @@ body.mode-board footer{display:none}
     <rect x="2" y="12" width="8" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
     <rect x="14" y="12" width="8" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
   </symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.03 7.03 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96a.5.5 0 0 0-.61.22L2.74 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.12.22.38.3.61.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.25.42.5.42h3.84c.25 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.23.08.49 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></symbol>
 </svg>
 
 <div class="app">
@@ -339,6 +349,7 @@ body.mode-board footer{display:none}
     </div>
     <div class="top-right">
       <div class="stars"><svg class="ico"><use href="#i-star"/></svg><span id="starCount">0</span></div>
+      <button class="icon-btn set-toggle" id="settingsToggle" type="button" aria-label="出题设置"><svg class="ico"><use href="#i-gear"/></svg>设置</button>
       <button class="icon-btn" id="soundBtn" type="button" aria-label="开关声音"><svg class="ico"><use id="soundIcon" href="#i-sound"/></svg><span id="soundText">声音开</span></button>
     </div>
   </header>
@@ -576,7 +587,7 @@ function fitStage(){
   var w=wrap.clientWidth || (window.innerWidth ? window.innerWidth-32 : 720);
   /* 单屏时舞台占 flex 剩余空间，按剩余高度二次缩放；窄屏/其它模式按宽度缩放 */
   var h=oneScreen?(wrap.clientHeight||H):H;
-  var maxScale=oneScreen?1.35:1;   /* Pad 空间富余时把板书等比放大，方便小孩看和点 */
+  var maxScale=oneScreen?1.5:1;    /* P40 等宽屏空间富余时把板书等比放大，方便小孩看和点 */
   var scale=Math.min(maxScale,w/720,h/H);
   if(!(scale>0)) scale=1;
   stage.style.height=H+'px';
@@ -1021,6 +1032,7 @@ function autoDemo(){
 function switchMode(m){
   S.mode=m;
   document.body.classList.toggle('mode-board',m==='board');
+  document.body.classList.remove('set-open');
   var tabs=document.querySelectorAll('.tab');
   for(var i=0;i<tabs.length;i++){
     var on=tabs[i].dataset.mode===m;
@@ -1106,6 +1118,10 @@ function bindEvents(){
     this.classList.toggle('off',!S.sound);
     if(S.sound) beep('right');
     else if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  };
+  $('settingsToggle').onclick=function(){
+    document.body.classList.toggle('set-open');
+    fitStage();
   };
   window.addEventListener('resize',fitStage);
   window.addEventListener('orientationchange',function(){ setTimeout(fitStage,120); });
