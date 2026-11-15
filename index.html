@@ -128,7 +128,7 @@ h1{font-size:clamp(19px,4.4vw,27px);margin:0;letter-spacing:.5px}
 
 /* ---------- 板书式凑十（练习册分合图） ---------- */
 .board{position:absolute;inset:0;display:none;z-index:2}
-.board-svg{position:absolute;left:0;top:0;width:720px;height:420px;pointer-events:none}
+.board-svg{position:absolute;left:0;top:0;width:720px;height:320px;pointer-events:none}
 .bl{fill:none;stroke:#c7d6ee;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .4s,stroke-width .4s}
 .bl.lit{stroke:#f0a127;stroke-width:4;animation:lineGlow .55s ease}
 .bl.hot.lit{stroke:#2ec28c}
@@ -190,6 +190,57 @@ h1{font-size:clamp(19px,4.4vw,27px);margin:0;letter-spacing:.5px}
 .cs-grid button:hover{background:#eaf3ff;border-color:#9dc2f7}
 footer{text-align:center;margin-top:20px;font-size:12px;color:#9aa8bd;line-height:1.7}
 
+/* ---------- 板书模式：紧凑舞台（320px 高，比通用舞台省 100px） ---------- */
+body.mode-board .stage-wrap{min-height:0}
+body.mode-board .stage{height:320px}
+body.mode-board .be-num{top:8px;height:54px;font-size:32px;border-radius:14px}
+body.mode-board .be-op{top:8px;height:54px;font-size:28px}
+body.mode-board .be-sum{top:8px;height:54px;font-size:30px;border-radius:14px}
+body.mode-board .bx{top:114px;height:50px;font-size:28px}
+body.mode-board .ten-chip{top:178px;height:38px;font-size:24px;border-radius:11px}
+body.mode-board .eq{top:244px;height:46px;gap:5px}
+body.mode-board .eq-item.num{min-width:40px;height:40px;font-size:22px;border-width:2px;border-radius:11px;padding:0 4px}
+body.mode-board .eq-item.op{min-width:20px;font-size:22px}
+body.mode-board .hint-line{top:290px;height:24px;line-height:24px;font-size:13px}
+body.mode-board .bl-plus{font-size:20px}
+
+/* ---------- Pad / 桌面：板书模式一屏排布，无需滚动 ---------- */
+@media (min-width:700px){
+  body.mode-board{height:100vh;height:100dvh;overflow:hidden}
+  body.mode-board .app{max-width:1000px;height:100vh;height:100dvh;padding:8px 16px 10px;
+    display:flex;flex-direction:column;gap:8px;overflow:hidden}
+  body.mode-board .top{margin:0;flex:none;flex-wrap:nowrap}
+  body.mode-board .brand-mark{width:38px;height:38px;border-radius:12px}
+  body.mode-board .brand-mark svg{width:22px;height:22px}
+  body.mode-board h1{font-size:19px}
+  body.mode-board .brand p{display:none}
+  body.mode-board .stars{padding:5px 12px;font-size:15px}
+  body.mode-board .icon-btn{padding:5px 11px;font-size:13px}
+  body.mode-board .tabs{padding:4px;flex:none;border-radius:15px}
+  body.mode-board .tab{padding:8px 6px;font-size:15px;border-radius:11px}
+  body.mode-board .settings{margin:0;flex:none;gap:8px;flex-wrap:nowrap}
+  body.mode-board .set-label{font-size:13px}
+  body.mode-board .seg button{padding:5px 9px;font-size:12px}
+  body.mode-board .toggle{font-size:13px}
+  body.mode-board .stage-wrap{flex:1 1 auto;min-height:0;overflow:hidden}
+  body.mode-board .question{margin:0;flex:none;display:grid;
+    grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;
+    column-gap:14px;align-items:center;padding:10px 14px;border-radius:16px}
+  body.mode-board .q-text{grid-area:1/1;text-align:left;font-size:18px;line-height:1.35;min-height:0}
+  body.mode-board .feedback{grid-area:2/1;margin:0;min-height:22px;font-size:15px;text-align:left}
+  body.mode-board .options{grid-area:1/2/3/3;display:grid;grid-template-columns:repeat(4,72px);
+    gap:9px;margin:0}
+  body.mode-board .opt{width:72px;height:64px;font-size:28px;border-radius:15px}
+  body.mode-board .controls{margin:0;flex:none;gap:8px;flex-wrap:nowrap}
+  body.mode-board .btn{min-height:44px;flex:1 1 0;font-size:14px;border-radius:13px}
+  body.mode-board .btn .ico{width:18px;height:18px}
+  body.mode-board .rhyme{margin:0;flex:none;padding:8px 14px;font-size:14px;border-radius:14px}
+  body.mode-board .rhyme small{display:inline;margin:0 0 0 8px;font-size:12px}
+  body.mode-board .cheatsheet{display:none}
+}
+
+body.mode-board footer{display:none}
+
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 .piece{position:absolute;top:-30px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.15}}
@@ -206,6 +257,15 @@ footer{text-align:center;margin-top:20px;font-size:12px;color:#9aa8bd;line-heigh
   .toggle{margin-left:0}
   .cs-grid{grid-template-columns:repeat(2,1fr)}
   .btn{flex:1 1 44%;font-size:14px;min-height:48px}
+  body.mode-board .hint-line{top:288px;height:28px;line-height:28px;font-size:17px}
+  body.mode-board .bl-plus{font-size:22px}
+  body.mode-board .be-num{font-size:38px}
+  body.mode-board .be-op{font-size:32px}
+  body.mode-board .be-sum{font-size:34px}
+  body.mode-board .bx{font-size:32px}
+  body.mode-board .ten-chip{font-size:28px}
+  body.mode-board .eq .eq-item.num{font-size:26px}
+  body.mode-board .eq .eq-item.op{font-size:26px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;animation-iteration-count:1 !important}
@@ -248,9 +308,9 @@ footer{text-align:center;margin-top:20px;font-size:12px;color:#9aa8bd;line-heigh
   </header>
 
   <nav class="tabs" role="tablist" aria-label="练习模式">
-    <button class="tab active" data-mode="split" type="button" role="tab" aria-selected="true"><svg class="ico"><use href="#i-split"/></svg>数的分解</button>
+    <button class="tab" data-mode="split" type="button" role="tab" aria-selected="false"><svg class="ico"><use href="#i-split"/></svg>数的分解</button>
     <button class="tab" data-mode="ten" type="button" role="tab" aria-selected="false"><svg class="ico"><use href="#i-ten"/></svg>凑十法</button>
-    <button class="tab" data-mode="board" type="button" role="tab" aria-selected="false"><svg class="ico"><use href="#i-board"/></svg>凑十板书</button>
+    <button class="tab active" data-mode="board" type="button" role="tab" aria-selected="true"><svg class="ico"><use href="#i-board"/></svg>凑十板书</button>
   </nav>
 
   <div class="settings">
@@ -277,7 +337,7 @@ footer{text-align:center;margin-top:20px;font-size:12px;color:#9aa8bd;line-heigh
       <div class="tray" id="tray"></div>
 
       <div class="board" id="board">
-        <svg class="board-svg" id="boardSvg" viewBox="0 0 720 420" aria-hidden="true">
+        <svg class="board-svg" id="boardSvg" viewBox="0 0 720 320" aria-hidden="true">
           <path id="blForkL" class="bl" pathLength="100" d=""/>
           <path id="blForkR" class="bl" pathLength="100" d=""/>
           <path id="blBrace" class="bl hot" pathLength="100" d=""/>
@@ -470,12 +530,22 @@ function lightCells(from,to,cls){
   for(var i=0;i<cells.length;i++) cells[i].classList.toggle(cls,i>=from&&i<to);
 }
 function fitStage(){
-  var wrap=$('stageWrap');
+  var wrap=$('stageWrap'), stage=$('stage');
+  var board=S.mode==='board';
+  var wide=window.innerWidth>=700;      /* 与 CSS 单屏断点一致 */
+  var oneScreen=board&&wide;
+  var H=board?320:420;                  /* 板书舞台压缩到 320 */
   var w=wrap.clientWidth || (window.innerWidth ? window.innerWidth-32 : 720);
-  var scale=Math.min(1,w/720);
-  $('stage').style.transform='scale('+scale+')';
-  $('stage').style.left=Math.max(0,Math.round((w-720*scale)/2))+'px';
-  wrap.style.height=Math.round(420*scale)+'px';
+  /* 单屏时舞台占 flex 剩余空间，按剩余高度二次缩放；窄屏/其它模式按宽度缩放 */
+  var h=oneScreen?(wrap.clientHeight||H):H;
+  var maxScale=oneScreen?1.35:1;   /* Pad 空间富余时把板书等比放大，方便小孩看和点 */
+  var scale=Math.min(maxScale,w/720,h/H);
+  if(!(scale>0)) scale=1;
+  stage.style.height=H+'px';
+  stage.style.transform='scale('+scale+')';
+  stage.style.left=Math.max(0,Math.round((w-720*scale)/2))+'px';
+  stage.style.top=oneScreen?Math.max(0,Math.round((h-H*scale)/2))+'px':'0px';
+  wrap.style.height=oneScreen?'':Math.round(H*scale)+'px';
 }
 
 /* ---------- 文本与算式 ---------- */
@@ -709,11 +779,21 @@ function resetBoardLines(){
   for(var i=0;i<els.length;i++) els[i].classList.remove('lit');
   $('boardTen').classList.remove('flash');
 }
+/* 两种版式共用一套几何公式：人字顶点 = 被拆数中心，两框严格左右对称，
+   括线起点 = 没拆数中心，10 徽章 = 括线中点，底线上连剩数框。互为镜像且完全对齐。 */
+function boardGeometry(p){
+  var second = p.target==='second';
+  var splitCx = second?352:254;               /* 被拆的加数中心（beB / beA） */
+  var keepCx  = second?254:352;               /* 没拆的加数中心 */
+  var boxCx1  = splitCx-56, boxCx2 = splitCx+56;  /* 两个方框中心，相对顶点对称 */
+  var needCx  = second?boxCx1:boxCx2;         /* 补数框：靠近没拆的数 */
+  var restCx  = second?boxCx2:boxCx1;         /* 剩数框 */
+  var tenCx   = Math.round((keepCx+needCx)/2);
+  return {second:second,splitCx:splitCx,keepCx:keepCx,boxCx1:boxCx1,boxCx2:boxCx2,
+          needCx:needCx,restCx:restCx,tenCx:tenCx};
+}
 function drawBoardSkeleton(p){
-  var second=p.target==='second';
-  var cx=second?352:254, yx=second?254:384;
-  var needCx=second?324:432, restCx=second?432:324;
-  var tenLeft=second?256:375, tenCx=tenLeft+33;
+  var g=boardGeometry(p), second=g.second;
   $('beA').textContent=String(p.a);
   $('beB').textContent=String(p.b);
   $('beA').className='bn be-num'+(second?'':' split');
@@ -722,14 +802,18 @@ function drawBoardSkeleton(p){
   $('bxL').textContent=''; $('bxR').textContent='';
   $('bxL').className='bn bx '+(second?'need':'rest');
   $('bxR').className='bn bx '+(second?'rest':'need');
+  $('bxL').style.left=(g.boxCx1-38)+'px';
+  $('bxR').style.left=(g.boxCx2-38)+'px';
   $('boardTen').className='bn ten-chip';
-  $('boardTen').style.left=tenLeft+'px';
-  $('blForkL').setAttribute('d','M '+cx+' 92 L 324 148');
-  $('blForkR').setAttribute('d','M '+cx+' 92 L 432 148');
-  $('blBrace').setAttribute('d','M '+yx+' 92 V 252 H '+needCx+' V 212');
-  $('blBottom').setAttribute('d','M '+tenCx+' 284 V 300 H '+restCx+' V 212');
-  $('blPlus1').setAttribute('x',String(yx+16)); $('blPlus1').setAttribute('y','246');
-  $('blPlus2').setAttribute('x',String(Math.round((tenCx+restCx)/2))); $('blPlus2').setAttribute('y','294');
+  $('boardTen').style.left=(g.tenCx-33)+'px';
+  $('blForkL').setAttribute('d','M '+g.splitCx+' 62 L '+g.boxCx1+' 112');
+  $('blForkR').setAttribute('d','M '+g.splitCx+' 62 L '+g.boxCx2+' 112');
+  $('blBrace').setAttribute('d','M '+g.keepCx+' 62 V 176 H '+g.needCx+' V 164');
+  $('blBottom').setAttribute('d','M '+g.tenCx+' 218 V 240 H '+g.restCx+' V 164');
+  $('blPlus1').setAttribute('x',String(Math.round(g.keepCx+(g.needCx-g.keepCx)*0.55)));
+  $('blPlus1').setAttribute('y','170');
+  $('blPlus2').setAttribute('x',String(Math.round((g.tenCx+g.restCx)/2)));
+  $('blPlus2').setAttribute('y','234');
   resetBoardLines();
 }
 function genBoard(forced){
@@ -856,6 +940,7 @@ function autoDemo(){
 }
 function switchMode(m){
   S.mode=m;
+  document.body.classList.toggle('mode-board',m==='board');
   var tabs=document.querySelectorAll('.tab');
   for(var i=0;i<tabs.length;i++){
     var on=tabs[i].dataset.mode===m;
@@ -866,13 +951,14 @@ function switchMode(m){
   if(m==='split'){
     $('rhyme').innerHTML='分与合口诀：一个数，分两堆；分出去，合回来<small>总数 = 左边 + 右边，知道两个数就能求出第三个</small>';
   }else if(m==='board'){
-    $('rhyme').innerHTML='分合图凑十：拆一个数，补另一个数，先凑成 10，再加剩下的<small>方框里填拆出来的两个数；拆第二个数和拆第一个数两种版式都要会</small>';
+    $('rhyme').innerHTML='分合图凑十：拆一个数，补另一个数，凑成 10，再加剩数<small>方框填拆出的两个数，两种版式都要会</small>';
   }else{
     $('rhyme').innerHTML='凑十法口诀：看大数，拆小数，凑成十，加剩数<small>例：8 + 5 = 8 + 2 + 3 = 10 + 3 = 13</small>';
   }
   renderSettings();
   bump();
   newProblem();
+  fitStage();                 /* 单屏布局需要在模式切换后重新量一次 */
 }
 function renderSettings(){
   var levels, cur;
@@ -948,10 +1034,11 @@ function bindEvents(){
 /* ---------- 启动 ---------- */
 initBalls(); buildFrameCells(); buildCheatsheet(); bindEvents();
 var startMode=new URLSearchParams(window.location.search).get('mode');
-S.mode = (startMode==='ten'||startMode==='board')?startMode:'split';
+S.mode = (startMode==='ten'||startMode==='board'||startMode==='split')?startMode:'board';
 switchMode(S.mode);
 fitStage();
 setTimeout(fitStage,80);
+setTimeout(fitStage,300);
 })();
 </script>
 </body>
