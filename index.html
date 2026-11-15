@@ -263,7 +263,7 @@ body.mode-board .bl-plus{font-size:20px}
   body.mode-board .set-label{font-size:13px}
   body.mode-board .seg button{padding:5px 9px;font-size:12px}
   body.mode-board .toggle{font-size:13px}
-  body.mode-board .stage-wrap{flex:1 1 auto;min-height:0;overflow:hidden}
+  body.mode-board .stage-wrap{min-height:0;overflow:hidden}
   body.mode-board .question{margin:0;flex:none;display:grid;
     grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;
     column-gap:14px;row-gap:3px;align-items:center;padding:8px 14px;border-radius:16px}
@@ -282,6 +282,21 @@ body.mode-board .bl-plus{font-size:20px}
   body.mode-board .cheatsheet{display:none}
 }
 
+/* 横屏：舞台占满剩余高度、垂直居中放大（P40 横屏等宽屏） */
+@media (min-width:700px) and (orientation:landscape){
+  body.mode-board .stage-wrap{flex:1 1 auto}
+}
+/* 竖屏：内容聚拢整体居中，消除上下割裂空白；加大触控区 */
+@media (min-width:700px) and (orientation:portrait){
+  /* 竖屏把各区块沿整屏均匀分布，留白分散到每段间隙，避免上下割裂的大空白 */
+  body.mode-board .app{justify-content:space-evenly;gap:clamp(12px,2.2vh,26px)}
+  body.mode-board .stage-wrap{flex:0 0 auto}
+  body.mode-board .opt{height:78px;font-size:32px}
+  body.mode-board .btn{min-height:56px;font-size:15px}
+  body.mode-board .q-text{font-size:19px}
+  body.mode-board .step{padding:8px 10px}
+  body.mode-board .step-body b{font-size:14px}
+}
 body.mode-board footer{display:none}
 
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
@@ -418,7 +433,7 @@ body.mode-board footer{display:none}
   <div class="controls">
     <button class="btn primary" id="replayBtn" type="button"><svg class="ico"><use href="#i-play"/></svg>重播本题</button>
     <button class="btn warm" id="newBtn" type="button"><svg class="ico"><use href="#i-dice"/></svg>换一题</button>
-    <button class="btn" id="demoBtn" type="button"><svg class="ico"><use href="#i-wand"/></svg>自动演示</button>
+    <button class="btn" id="demoBtn" type="button"><svg class="ico"><use href="#i-wand"/></svg><span id="demoText">看演示</span></button>
     <button class="btn" id="hintBtn" type="button"><svg class="ico"><use href="#i-bulb"/></svg>给点提示</button>
   </div>
 
@@ -583,18 +598,21 @@ function fitStage(){
   var board=S.mode==='board';
   var wide=window.innerWidth>=700;      /* 与 CSS 单屏断点一致 */
   var oneScreen=board&&wide;
+  var portrait=window.innerHeight>window.innerWidth;   /* 竖屏：内容聚拢，不占满 flex 高度 */
   var H=board?320:420;                  /* 板书舞台压缩到 320 */
   var w=wrap.clientWidth || (window.innerWidth ? window.innerWidth-32 : 720);
-  /* 单屏时舞台占 flex 剩余空间，按剩余高度二次缩放；窄屏/其它模式按宽度缩放 */
-  var h=oneScreen?(wrap.clientHeight||H):H;
+  /* 横屏：舞台占 flex 剩余高度按高度放大；竖屏/窄屏：按宽度缩放、容器贴合内容 */
+  var flexH=oneScreen&&!portrait;
+  var h=flexH?(wrap.clientHeight||H):H;
   var maxScale=oneScreen?1.5:1;    /* P40 等宽屏空间富余时把板书等比放大，方便小孩看和点 */
-  var scale=Math.min(maxScale,w/720,h/H);
+  /* 竖屏：舞台按容器宽度满幅放大(忽略高度约束)，尽量利用宽度、放大字号 */
+  var scale=Math.min(maxScale,w/720,flexH?h/H:9);
   if(!(scale>0)) scale=1;
   stage.style.height=H+'px';
   stage.style.transform='scale('+scale+')';
   stage.style.left=Math.max(0,Math.round((w-720*scale)/2))+'px';
-  stage.style.top=oneScreen?Math.max(0,Math.round((h-H*scale)/2))+'px':'0px';
-  wrap.style.height=oneScreen?'':Math.round(H*scale)+'px';
+  stage.style.top=flexH?Math.max(0,Math.round((h-H*scale)/2))+'px':'0px';
+  wrap.style.height=flexH?'':Math.round(H*scale)+'px';
 }
 
 /* ---------- 文本与算式 ---------- */
@@ -971,6 +989,63 @@ function boardFinal(){
   celebrate('太棒了！'+p.a+' + '+p.b+' = '+p.sum,function(){ if(S.autoNext && !S.demo) genBoard(); },true);
 }
 
+/* 板书引导演示：像老师一样分步带做——光圈聚焦 → 分叉连线生长 → 数字弹入框 → 凑十徽章 → 加剩数，配语音与口语讲解；演示不计星 */
+function boardGuide(){
+  if(S.demo) return;
+  var p=S.problem;
+  if(!p||p.kind!=='board'||p.phase==='done'||!$('options').querySelector('button')){
+    newProblem(); p=S.problem;
+  }
+  if(!p||p.kind!=='board') return;
+  var tk=bump(); S.demo=true;
+  var bs=$('options').querySelectorAll('button');
+  for(var bi=0;bi<bs.length;bi++){ bs[bi].disabled=true; bs[bi].classList.remove('correct','wrong'); }
+  drawBoardSkeleton(p);
+  setEq([num(p.a,'blue'),op('+'),num(p.b,'orange'),op('='),num('?','unknown')]);
+  renderSteps(0);
+  var needBox=p.target==='second'?$('bxL'):$('bxR');
+  var restBox=p.target==='second'?$('bxR'):$('bxL');
+  function ok(){ return tk===S.token&&S.demo; }
+  function say(t,note){ $('qText').textContent=t; speak(t);
+    if(note){ $('feedback').textContent=note; $('feedback').className='feedback good'; } }
+  setBoardFocus(0,p);
+  say('\u2460 先看 '+p.Y+'，给它凑成 10，还差 '+p.need+' 个',
+      '\u627e\u670b\u53cb\uff1a'+p.Y+' 和 '+p.need+' \u6b63\u597d\u662f 10');
+  later(function(){
+    if(!ok())return;
+    $('blForkL').classList.add('lit');
+    later(function(){ if(ok()) $('blForkR').classList.add('lit'); },220);
+    later(function(){
+      if(!ok())return;
+      needBox.textContent=String(p.need); needBox.classList.add('filled');
+      $('blBrace').classList.add('lit'); $('boardTen').classList.add('flash');
+      setEq([num(p.X,'purple'),op('='),num(p.need,'orange'),op('+'),num('?','unknown')]);
+      renderSteps(1); setBoardFocus(1,p);
+      say('\u2461 把 '+p.X+' 拆成 '+p.need+' 和 '+p.rest+'，借走 '+p.need+'，还剩 '+p.rest,
+          '\u62c6\u4e00\u62c6\uff1a'+p.X+' \u62c6\u6210 '+p.need+' \u548c '+p.rest);
+      later(function(){
+        if(!ok())return;
+        restBox.textContent=String(p.rest); restBox.classList.add('filled');
+        $('blBottom').classList.add('lit');
+        setEq([num(10,'green'),op('+'),num(p.rest,'orange'),op('='),num('?','unknown')]);
+        renderSteps(2); setBoardFocus(2,p);
+        say('\u2462 凑成 10 啦！10 再往后数 '+p.rest+' 个，就是 '+p.sum,
+            '\u52a0\u5269\u6570\uff1a10 + '+p.rest+' = '+p.sum);
+        later(function(){
+          if(!ok())return;
+          $('beSum').textContent=String(p.sum); $('beSum').classList.add('done');
+          setEq([num(p.a,'blue'),op('+'),num(p.b,'orange'),op('='),num(p.sum,'green hot')]);
+          setHint('\u601d\u8def\uff1a'+p.a+'+'+p.b+' \u2192 '+p.Y+'+'+p.need+'=10 \u2192 10+'+p.rest+'='+p.sum);
+          renderSteps(3); setBoardFocus(3,p); p.phase='done';
+          say('\u505a\u5b8c\u5566\uff01'+p.a+' + '+p.b+' = '+p.sum+' \uff0c\u6362\u4e00\u9898\u4f60\u81ea\u5df1\u8bd5\u8bd5',
+              '\u601d\u8def\uff1a'+p.a+'+'+p.b+' \u2192 '+p.Y+'+'+p.need+'=10 \u2192 10+'+p.rest+'='+p.sum);
+          confetti(40); beep('right'); S.demo=false;
+        },1700);
+      },2100);
+    },900);
+  },200);
+}
+
 /* ================= 公共操作 ================= */
 function newProblem(){
   if(S.mode==='split') genSplit();
@@ -1040,6 +1115,7 @@ function switchMode(m){
     tabs[i].setAttribute('aria-selected',on?'true':'false');
   }
   $('cheatsheet').style.display = m==='split'?'block':'none';
+  $('demoText').textContent = m==='board'?'看演示':'自动演示';
   if(m==='split'){
     $('rhyme').innerHTML='分与合口诀：一个数，分两堆；分出去，合回来<small>总数 = 左边 + 右边，知道两个数就能求出第三个</small>';
   }else if(m==='board'){
@@ -1108,7 +1184,7 @@ function bindEvents(){
   for(var i=0;i<tabs.length;i++) tabs[i].onclick=function(){ switchMode(this.dataset.mode); };
   $('newBtn').onclick=function(){ bump(); newProblem(); };
   $('replayBtn').onclick=repeatCurrent;
-  $('demoBtn').onclick=autoDemo;
+  $('demoBtn').onclick=function(){ if(S.mode==='board') boardGuide(); else autoDemo(); };
   $('hintBtn').onclick=showHint;
   $('autoNext').onchange=function(){ S.autoNext=this.checked; };
   $('soundBtn').onclick=function(){
