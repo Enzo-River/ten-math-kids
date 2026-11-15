@@ -151,6 +151,20 @@ h1{font-size:clamp(19px,4.4vw,27px);margin:0;letter-spacing:.5px}
 .ten-chip.flash{animation:tenFlash .6s ease-out}
 @keyframes tenFlash{0%{transform:scale(.6);opacity:.4}60%{transform:scale(1.18)}100%{transform:scale(1)}}
 
+/* ---------- 板书上的「小教练」提示与当前焦点 ---------- */
+.board-coach{position:absolute;left:512px;top:88px;width:184px;padding:11px 12px;
+  border-radius:16px;background:#fff8e5;border:2px solid #f7d488;color:#9a6508;
+  font-size:15px;font-weight:800;line-height:1.5;box-shadow:0 6px 16px #d9a93a22}
+.board-coach b{color:#e07d0d;font-size:18px}
+.board-coach::before{content:'小教练';display:block;font-size:11px;font-weight:900;
+  letter-spacing:2px;color:#c08a2c;margin-bottom:3px}
+.board-coach.done{background:#e9fbf2;border-color:#8de0bb;color:#12875c}
+.board-coach.done b{color:#0d8a5b}
+.bn.focus{outline:3px solid #ffc94d;outline-offset:2px}
+.bn.focus::after{content:'';position:absolute;inset:-8px;border-radius:inherit;
+  border:3px solid #ffd45e;pointer-events:none;animation:focusBreath 1.4s ease-in-out infinite}
+@keyframes focusBreath{0%,100%{opacity:.25;transform:scale(.97)}50%{opacity:.85;transform:scale(1.03)}}
+
 /* ---------- 答题区 ---------- */
 .question{margin-top:14px;background:#fff;border:2px solid var(--line);border-radius:22px;padding:16px;
   box-shadow:0 10px 26px #2b4b7a10}
@@ -166,6 +180,24 @@ h1{font-size:clamp(19px,4.4vw,27px);margin:0;letter-spacing:.5px}
 .feedback{text-align:center;min-height:30px;margin-top:10px;font-size:17px;font-weight:800;color:var(--muted)}
 .feedback.good{color:#149a68}
 .feedback.tip{color:#b8790d;font-size:15px}
+
+/* ---------- 做题顺序引导条（板书模式） ---------- */
+.steps{display:none;gap:6px;align-items:stretch;margin:0 0 10px}
+body.mode-board .steps{display:flex}
+.step{flex:1;min-width:0;display:flex;align-items:center;gap:7px;padding:5px 8px;
+  border-radius:12px;background:#f2f6fd;border:2px solid #e3ebf9;color:#8494b0;
+  transition:background .3s,border-color .3s,color .3s,transform .3s}
+.step-no{width:22px;height:22px;flex:none;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-weight:900;background:#dfe8f7;color:#8494b0}
+.step-body{min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.step-body b{font-size:13px;font-weight:900;white-space:nowrap}
+.step-body small{font-size:11px;font-weight:700;white-space:nowrap;opacity:.85}
+.step.active{background:#fff3d6;border-color:#f5b73b;color:#a86a05;transform:translateY(-1px);
+  animation:stepPulse 1.8s ease-in-out infinite}
+.step.active .step-no{background:#f7a928;color:#fff}
+.step.done{background:#e4f8ee;border-color:#8de0bb;color:#12875c}
+.step.done .step-no{background:#39c98f;color:#fff}
+@keyframes stepPulse{50%{box-shadow:0 4px 16px #f5b73b55}}
 
 .controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
 .btn{flex:1 1 150px;display:flex;align-items:center;justify-content:center;gap:7px;min-height:52px;
@@ -224,11 +256,13 @@ body.mode-board .bl-plus{font-size:20px}
   body.mode-board .toggle{font-size:13px}
   body.mode-board .stage-wrap{flex:1 1 auto;min-height:0;overflow:hidden}
   body.mode-board .question{margin:0;flex:none;display:grid;
-    grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;
-    column-gap:14px;align-items:center;padding:10px 14px;border-radius:16px}
-  body.mode-board .q-text{grid-area:1/1;text-align:left;font-size:18px;line-height:1.35;min-height:0}
-  body.mode-board .feedback{grid-area:2/1;margin:0;min-height:22px;font-size:15px;text-align:left}
-  body.mode-board .options{grid-area:1/2/3/3;display:grid;grid-template-columns:repeat(4,72px);
+    grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;
+    column-gap:14px;row-gap:3px;align-items:center;padding:8px 14px;border-radius:16px}
+  body.mode-board .steps{grid-area:1/1;margin:0}
+  body.mode-board .step{padding:4px 7px}
+  body.mode-board .q-text{grid-area:2/1;text-align:left;font-size:17px;line-height:1.3;min-height:0}
+  body.mode-board .feedback{grid-area:3/1;margin:0;min-height:20px;font-size:14px;text-align:left}
+  body.mode-board .options{grid-area:1/2/4/3;display:grid;grid-template-columns:repeat(4,72px);
     gap:9px;margin:0}
   body.mode-board .opt{width:72px;height:64px;font-size:28px;border-radius:15px}
   body.mode-board .controls{margin:0;flex:none;gap:8px;flex-wrap:nowrap}
@@ -254,6 +288,8 @@ body.mode-board footer{display:none}
   .eq-item.op{font-size:32px}
   .options{grid-template-columns:repeat(2,1fr)}
   .opt{height:60px;font-size:26px}
+  .step-body small{display:none}
+  .step{padding:5px 6px;gap:5px}
   .toggle{margin-left:0}
   .cs-grid{grid-template-columns:repeat(2,1fr)}
   .btn{flex:1 1 44%;font-size:14px;min-height:48px}
@@ -353,6 +389,7 @@ body.mode-board footer{display:none}
         <div class="bn bx" id="bxL" style="left:286px"></div>
         <div class="bn bx" id="bxR" style="left:394px"></div>
         <div class="bn ten-chip" id="boardTen">10</div>
+        <div class="board-coach" id="boardCoach"></div>
       </div>
       <div class="balls" id="balls"></div>
       <div class="eq" id="eq"></div>
@@ -361,6 +398,7 @@ body.mode-board footer{display:none}
   </div>
 
   <section class="question">
+    <div class="steps" id="steps" aria-label="做题顺序"></div>
     <div class="q-text" id="qText">准备开始啦！</div>
     <div class="options" id="options"></div>
     <div class="feedback" id="feedback"></div>
@@ -816,6 +854,43 @@ function drawBoardSkeleton(p){
   $('blPlus2').setAttribute('y','234');
   resetBoardLines();
 }
+/* ---------- 三步顺序引导：让孩子知道「现在做哪一步、下一步做什么」 ---------- */
+var BOARD_STEPS=[
+  {name:'找朋友',tip:'谁和它凑成 10'},
+  {name:'拆一拆',tip:'借走后剩几个'},
+  {name:'加剩数',tip:'10 再往后数'}
+];
+function renderSteps(active){          /* active: 0/1/2 当前步，3 表示全部完成 */
+  var h='';
+  BOARD_STEPS.forEach(function(s,i){
+    var cls=i<active?'done':(i===active?'active':'todo');
+    h+='<div class="step '+cls+'"><span class="step-no">'+(i<active?'\u2713':(i+1))+'</span>'+
+       '<span class="step-body"><b>'+s.name+'</b><small>'+s.tip+'</small></span></div>';
+  });
+  $('steps').innerHTML=h;
+  $('steps').setAttribute('data-progress',String(Math.min(3,active)));
+}
+function setBoardFocus(step,p){
+  var ids=['beA','beB','bxL','bxR','boardTen','beSum'];
+  ids.forEach(function(id){ $(id).classList.remove('focus'); });
+  var keep =p.target==='second'?'beA':'beB';
+  var split=p.target==='second'?'beB':'beA';
+  var needBox=p.target==='second'?'bxL':'bxR';
+  var restBox=p.target==='second'?'bxR':'bxL';
+  var f = step===0?[keep,needBox] : step===1?[split,restBox] : step===2?['boardTen','beSum'] : [];
+  f.forEach(function(id){ $(id).classList.add('focus'); });
+}
+function boardCoach(step,p){
+  var tag=$('boardCoach'), t;
+  if(step===0) t='\u2460 先看 <b>'+p.Y+'</b><br>给它凑成 10，<br>还差几个？';
+  else if(step===1) t='\u2461 把 <b>'+p.X+'</b> 拆两半<br>借走的填橙框，<br>剩下填紫框';
+  else if(step===2) t='\u2462 凑成 <b>10</b> 啦！<br>再往后数 <b>'+p.rest+'</b> 个<br>就是答案';
+  else t='\u2713 三步全对！<br><b>'+p.a+' + '+p.b+' = '+p.sum+'</b><br>再来一题吧';
+  tag.innerHTML=t;
+  tag.className='board-coach'+(step>=3?' done':' s'+step);
+  setBoardFocus(step,p);
+}
+
 function genBoard(forced){
   var tk=bump(); forced=forced||{};
   var ab = forced.a!==undefined ? {a:forced.a,b:forced.b} : pickBoardAB();
@@ -829,9 +904,10 @@ function genBoard(forced){
   drawBoardSkeleton(p);
   setEq([num(a,'blue'),op('+'),num(b,'orange'),op('='),num('?','unknown')]);
   setHint(target==='second'?'拆第二个数，补第一个数凑成 10':'拆第一个数，补第二个数凑成 10');
-  var q='第一步：'+Y+' 再添几个就是 10？（从 '+X+' 里借）';
+  renderSteps(0); boardCoach(0,p);
+  var q='第一步：'+Y+' 的好朋友是几？（借 '+X+' 里的几个，凑成 10）';
   ask(q,optionsFor(need,1,8),need,function(){
-    celebrate('对啦！借 '+need+' 个凑成 10',function(){ boardStep1(tk); },false);
+    celebrate('对啦！'+Y+' 和 '+need+' 凑成 10 → 下一步：把 '+X+' 拆一拆',function(){ boardStep1(tk); },false);
   },q);
 }
 function boardStep1(tk){
@@ -849,9 +925,10 @@ function boardStep1(tk){
   wait(1350).then(function(){
     if(tk!==S.token) return;
     p.step=1;
-    var q='第二步：'+p.X+' 拆走 '+p.need+' 个，还剩几个？';
+    renderSteps(1); boardCoach(1,p);
+    var q='第二步：'+p.X+' 借走 '+p.need+' 个，自己还剩几个？';
     ask(q,optionsFor(p.rest,1,9),p.rest,function(){
-      celebrate('没错！还剩 '+p.rest+' 个',function(){ boardStep2(tk); },false);
+      celebrate('还剩 '+p.rest+' 个 → 下一步：10 加剩数',function(){ boardStep2(tk); },false);
     },q);
   });
 }
@@ -865,7 +942,8 @@ function boardStep2(tk){
   wait(850).then(function(){
     if(tk!==S.token) return;
     p.step=2;
-    var q='第三步：10 + '+p.rest+' = ?';
+    renderSteps(2); boardCoach(2,p);
+    var q='第三步：凑成 10 啦！10 再往后数 '+p.rest+' 个是几？';
     ask(q,optionsFor(p.sum,11,18),p.sum,function(){
       p.phase='done';
       boardFinal();
@@ -877,6 +955,8 @@ function boardFinal(){
   $('beSum').textContent=String(p.sum); $('beSum').classList.add('done');
   setEq([num(p.a,'blue'),op('+'),num(p.b,'orange'),op('='),num(p.sum,'green hot')]);
   setHint('思路：'+p.a+'+'+p.b+' → '+p.Y+'+'+p.need+'=10 → 10+'+p.rest+'='+p.sum);
+  renderSteps(3); boardCoach(3,p);
+  $('qText').textContent='做完啦！'+p.a+' + '+p.b+' = '+p.sum+'，你是凑十小达人！';
   celebrate('太棒了！'+p.a+' + '+p.b+' = '+p.sum,function(){ if(S.autoNext && !S.demo) genBoard(); },true);
 }
 
@@ -902,9 +982,9 @@ function showHint(){
     else if(p.hide==='left') pulse(0,p.k);
     else pulse(p.k,p.n);
   }else if(p.kind==='board'){
-    if(p.step===0) t='先看没拆的数 '+p.Y+'，还差 '+p.need+' 个凑成 10，要从 '+p.X+' 里借。';
-    else if(p.step===1) t=p.X+' 拆走 '+p.need+' 个，剩下 '+p.rest+' 个。';
-    else t='10 再往后数 '+p.rest+' 个，就是 '+p.sum+'。';
+    if(p.step===0) t='先看不用拆的 '+p.Y+'，给它凑成 10 还差 '+p.need+' 个，去 '+p.X+' 里借。';
+    else if(p.step===1) t=p.X+' 借走 '+p.need+' 个，掰着手指数一数，还剩 '+p.rest+' 个。';
+    else t='凑成 10 啦！10 再往后数 '+p.rest+' 个，就是 '+p.sum+'。';
   }else{
     if(p.step===0){ t='数一数，十格阵还空着 '+p.need+' 个格子，就要从 '+p.b+' 里借 '+p.need+' 个。'; lightCells(p.a,10,'need'); }
     else if(p.step===1){ t=p.b+' 拆走 '+p.need+' 个，剩下的是 '+p.rest+' 个。'; pulse(10,10+p.rest); }
@@ -951,7 +1031,7 @@ function switchMode(m){
   if(m==='split'){
     $('rhyme').innerHTML='分与合口诀：一个数，分两堆；分出去，合回来<small>总数 = 左边 + 右边，知道两个数就能求出第三个</small>';
   }else if(m==='board'){
-    $('rhyme').innerHTML='分合图凑十：拆一个数，补另一个数，凑成 10，再加剩数<small>方框填拆出的两个数，两种版式都要会</small>';
+    $('rhyme').innerHTML='凑十儿歌：找朋友，拆一拆，凑成十，加剩数<small>按上面 ① ② ③ 三步做，方框里填拆出的两个数</small>';
   }else{
     $('rhyme').innerHTML='凑十法口诀：看大数，拆小数，凑成十，加剩数<small>例：8 + 5 = 8 + 2 + 3 = 10 + 3 = 13</small>';
   }
