@@ -62,6 +62,23 @@ h1{font-size:clamp(19px,4.4vw,27px);margin:0;letter-spacing:.5px}
 .seg button.on{background:#fff;color:#2c6fd6;box-shadow:0 2px 7px #2b4b7a1c}
 .toggle{display:flex;align-items:center;gap:7px;margin-left:auto;color:var(--muted);font-weight:700;cursor:pointer;white-space:nowrap}
 .toggle input{width:18px;height:18px;accent-color:#4b9bff;cursor:pointer}
+/* 学习小结：遮罩卡片，默认不占单屏空间 */
+.report-mask{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:#1b2b4a66}
+.report-mask.show{display:flex}
+.report-card{width:min(430px,92vw);background:#fff;border:2px solid var(--line);border-radius:22px;padding:18px 20px;
+  box-shadow:0 18px 50px #17294a33}
+.report-card h2{margin:0 0 4px;font-size:19px;color:#314c76}
+.report-card .rp-date{font-size:12px;color:var(--muted);margin-bottom:12px}
+.rp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.rp-cell{background:#f4f8ff;border:2px solid #e3ecfb;border-radius:14px;padding:10px 6px;text-align:center}
+.rp-cell b{display:block;font-size:23px;color:#2a5ea8;line-height:1.2}
+.rp-cell span{font-size:11px;color:var(--muted);font-weight:700}
+.rp-note{font-size:14px;font-weight:800;color:#3c5f92;background:#fff8e5;border:2px solid #f7d488;
+  border-radius:13px;padding:10px 12px;margin-bottom:14px;line-height:1.5}
+.rp-actions{display:flex;gap:9px}
+.rp-actions button{flex:1;min-height:42px;border:2px solid var(--line);border-radius:13px;background:#fff;
+  color:#40577d;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
+.rp-actions button:first-child{background:linear-gradient(135deg,#42d39d,#22ae7d);color:#fff;border-color:transparent}
 
 /* ---------- 舞台 ---------- */
 .stage-wrap{position:relative;width:100%;min-height:300px;overflow:hidden}
@@ -149,6 +166,14 @@ h1{font-size:clamp(19px,4.4vw,27px);margin:0;letter-spacing:.5px}
 .bx.filled{border-style:solid;animation:pop .55s ease-out}
 .bx.need.filled{background:#fff2d8;color:#c9800d}
 .bx.rest.filled{background:#f0eaff;color:#7053cc}
+/* 三个待填空的序号角标：跟随补数框/剩数框/得数框，不固定左右 */
+.bx-tag{width:24px;height:24px;min-width:0;min-height:0;border-radius:50%;border:2px solid #c9d8ef;
+  background:#fff;color:#8494b0;font-size:14px;font-weight:900;z-index:5;box-shadow:0 2px 6px #2b4b7a22}
+.bx-tag.on{background:#f7a928;border-color:#f7a928;color:#fff;animation:tagBreath 1.5s ease-in-out infinite}
+.bx-tag.done{background:#39c98f;border-color:#39c98f;color:#fff;animation:none}
+@keyframes tagBreath{50%{transform:scale(1.14)}}
+.bn.nudge{animation:nudgePulse .75s ease-in-out 2}
+@keyframes nudgePulse{0%,100%{box-shadow:0 0 0 0 #ff9a9a00}50%{box-shadow:0 0 0 5px #ff9a9a88}}
 .ten-chip{width:66px;height:44px;top:236px;border-radius:12px;background:#ddf8ec;border:3px solid #93e5c2;color:#11875c;font-size:27px;opacity:1;transform:scale(1)}
 .ten-chip.flash{animation:tenFlash .6s ease-out}
 @keyframes tenFlash{0%{transform:scale(.6);opacity:.4}60%{transform:scale(1.18)}100%{transform:scale(1)}}
@@ -381,6 +406,24 @@ body.mode-board footer{display:none}
     <span class="set-label" id="layoutLabel" style="display:none">分合图版式</span>
     <div class="seg" id="segLayout" style="display:none"></div>
     <label class="toggle"><input type="checkbox" id="autoNext">连续自动出题</label>
+    <button class="icon-btn" id="reportBtn" type="button">学习小结</button>
+  </div>
+
+  <div class="report-mask" id="reportMask">
+    <div class="report-card" role="dialog" aria-label="学习小结">
+      <h2>今天的学习小结</h2>
+      <div class="rp-date" id="rpDate"></div>
+      <div class="rp-grid">
+        <div class="rp-cell"><b id="rpAnswers">0</b><span>作答次数</span></div>
+        <div class="rp-cell"><b id="rpCorrect">0</b><span>答对次数</span></div>
+        <div class="rp-cell"><b id="rpRate">—</b><span>正确率</span></div>
+      </div>
+      <div class="rp-note" id="rpNote"></div>
+      <div class="rp-actions">
+        <button type="button" id="rpClose">继续练习</button>
+        <button type="button" id="rpReset">清空记录</button>
+      </div>
+    </div>
   </div>
 
   <div class="stage-wrap" id="stageWrap">
@@ -414,6 +457,9 @@ body.mode-board footer{display:none}
         <div class="bn be-sum" id="beSum" style="left:418px"></div>
         <div class="bn bx" id="bxL" style="left:286px"></div>
         <div class="bn bx" id="bxR" style="left:394px"></div>
+        <div class="bn bx-tag" id="tagNeed">1</div>
+        <div class="bn bx-tag" id="tagRest">2</div>
+        <div class="bn bx-tag" id="tagSum">3</div>
         <div class="bn ten-chip" id="boardTen">10</div>
         <div class="board-coach" id="boardCoach"></div>
       </div>
@@ -466,6 +512,38 @@ var S = {
   mode:'split', splitLevel:'mix', tenLevel:'mix', boardLevel:'mix', boardLayout:'mix', sound:true, autoNext:false,
   star:0, combo:0, token:0, timers:[], demo:false, demoId:0, problem:null
 };
+
+/* ---------- 本地学习记录（仅存当天，演示不计入） ---------- */
+var STAT_KEY='ten-math-kids-stats-v1';
+function todayStr(){ var t=new Date(); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
+function loadStats(){
+  try{
+    var s=JSON.parse(localStorage.getItem(STAT_KEY)||'null');
+    if(s&&s.date===todayStr()&&Array.isArray(s.wrong)) return s;
+  }catch(e){}
+  return {date:todayStr(),answers:0,correct:0,wrong:[0,0,0]};
+}
+var stats=loadStats();
+function saveStats(){ try{ localStorage.setItem(STAT_KEY,JSON.stringify(stats)); }catch(e){} }
+function recordAnswer(right,step){
+  if(S.demo) return;
+  stats.answers++;
+  if(right) stats.correct++;
+  else stats.wrong[step]=Number(stats.wrong[step]||0)+1;
+  saveStats();
+}
+function renderReport(){
+  var rate=stats.answers?Math.round(stats.correct/stats.answers*100):0;
+  $('rpDate').textContent=stats.date+' · 记录只保存在这台设备上';
+  $('rpAnswers').textContent=String(stats.answers);
+  $('rpCorrect').textContent=String(stats.correct);
+  $('rpRate').textContent=stats.answers?rate+'%':'—';
+  var max=-1,idx=0;
+  for(var i=0;i<3;i++){ if(stats.wrong[i]>max){ max=stats.wrong[i]; idx=i; } }
+  var names=['① 找朋友（凑 10）','② 拆一拆（剩数）','③ 加剩数（得数）'];
+  $('rpNote').textContent=max>0 ? '最容易卡在第 '+names[idx]+'，明天可以先练这一步。'
+    : (stats.answers?'今天没有卡住的步骤，继续保持！':'还没有作答记录，先做几题吧。');
+}
 
 /* ---------- 定时与异步 ---------- */
 function later(fn,ms){ var t=setTimeout(fn,ms); S.timers.push(t); return t; }
@@ -640,6 +718,16 @@ function optionsFor(ans,lo,hi){
   }
   return shuffle(Object.keys(set).map(Number));
 }
+/* 答错时按当前步给可操作的提示，并让对应框/角标脉冲，不打断答题流程 */
+function wrongTipFor(p){
+  if(!p||p.kind!=='board') return {text:'再数一数，你可以的！',ids:[]};
+  var s=p.step||0;
+  if(s===0) return {text:'再数一数：从 '+p.Y+' 数到 10，还差几个？',
+    ids:[p.target==='second'?'beA':'beB','tagNeed']};
+  if(s===1) return {text:'再想想：'+p.X+' 借走 '+p.need+'，还剩几个？',
+    ids:[p.target==='second'?'beB':'beA',p.target==='second'?'bxR':'bxL','tagRest']};
+  return {text:'从 10 往后数 '+p.rest+' 个，数到 '+p.sum+' 就是答案。',ids:['boardTen','tagSum']};
+}
 function ask(text,opts,correct,onRight,speakText){
   var p=S.problem;
   if(p) p.currentAnswer=correct;
@@ -651,6 +739,7 @@ function ask(text,opts,correct,onRight,speakText){
     b.type='button'; b.className='opt'; b.textContent=String(v);
     b.onclick=function(){
       if(b.disabled) return;
+      recordAnswer(v===correct, p?(p.step||0):0);
       if(v===correct){
         Array.prototype.forEach.call(box.children,function(c){ c.disabled=true; });
         b.classList.add('correct');
@@ -658,8 +747,15 @@ function ask(text,opts,correct,onRight,speakText){
       }else{
         b.classList.add('wrong');
         setTimeout(function(){ b.classList.remove('wrong'); },420);
-        $('feedback').textContent='再数一数，你可以的！';
-        $('feedback').className='feedback';
+        var tip=wrongTipFor(p);
+        $('feedback').textContent=tip.text;
+        $('feedback').className='feedback tip';
+        tip.ids.forEach(function(id){
+          var el=$(id); if(!el) return;
+          el.classList.remove('nudge'); void el.offsetWidth; el.classList.add('nudge');
+          setTimeout(function(){ el.classList.remove('nudge'); },1700);
+        });
+        speak(tip.text);
         S.combo=0; beep('wrong');
       }
     };
@@ -859,6 +955,25 @@ function boardGeometry(p){
   return {second:second,splitCx:splitCx,keepCx:keepCx,boxCx1:boxCx1,boxCx2:boxCx2,
           needCx:needCx,restCx:restCx,tenCx:tenCx};
 }
+/* 序号角标：位置跟着语义框走（补数框=1，剩数框=2，得数框=3），镜像版式自动反转左右 */
+function tagAt(id,box,side){
+  var l=parseFloat(box.style.left)||0, t=box.offsetTop||114, w=box.offsetWidth||76;
+  $(id).style.left=Math.round(side==='left'?l-12:l+w-12)+'px';
+  $(id).style.top=Math.round(t-12)+'px';
+}
+function placeBoardTags(g){
+  tagAt('tagNeed', $('bx'+(g.second?'L':'R')), g.second?'left':'right');
+  tagAt('tagRest', $('bx'+(g.second?'R':'L')), g.second?'right':'left');
+  var sum=$('beSum'), sl=parseFloat(sum.style.left)||418;
+  $('tagSum').style.left=Math.round(sl+(sum.offsetWidth||80)-12)+'px';
+  $('tagSum').style.top=Math.round((sum.offsetTop||8)+(sum.offsetHeight||54)-12)+'px';
+}
+var TAG_NO={tagNeed:'1',tagRest:'2',tagSum:'3'};
+function setTagState(id,state){
+  var el=$(id);
+  el.className='bn bx-tag'+(state==='on'?' on':'')+(state==='done'?' done':'');
+  el.textContent=state==='done'?'\u2713':TAG_NO[id];
+}
 function drawBoardSkeleton(p){
   var g=boardGeometry(p), second=g.second;
   $('beA').textContent=String(p.a);
@@ -873,6 +988,8 @@ function drawBoardSkeleton(p){
   $('bxR').style.left=(g.boxCx2-38)+'px';
   $('boardTen').className='bn ten-chip';
   $('boardTen').style.left=(g.tenCx-33)+'px';
+  placeBoardTags(g);
+  setTagState('tagNeed','idle'); setTagState('tagRest','idle'); setTagState('tagSum','idle');
   $('blForkL').setAttribute('d','M '+g.splitCx+' 62 L '+g.boxCx1+' 112');
   $('blForkR').setAttribute('d','M '+g.splitCx+' 62 L '+g.boxCx2+' 112');
   $('blBrace').setAttribute('d','M '+g.keepCx+' 62 V 176 H '+g.needCx+' V 164');
@@ -908,6 +1025,9 @@ function setBoardFocus(step,p){
   var restBox=p.target==='second'?'bxR':'bxL';
   var f = step===0?[keep,needBox] : step===1?[split,restBox] : step===2?['boardTen','beSum'] : [];
   f.forEach(function(id){ $(id).classList.add('focus'); });
+  setTagState('tagNeed', step===0?'on':(step>0?'done':'idle'));
+  setTagState('tagRest', step===1?'on':(step>1?'done':'idle'));
+  setTagState('tagSum',  step===2?'on':(step>2?'done':'idle'));
 }
 function boardCoach(step,p){
   var tag=$('boardCoach'), t;
@@ -946,6 +1066,7 @@ function boardStep1(tk){
   later(function(){ $('blForkR').classList.add('lit'); },180);
   later(function(){
     needBox.textContent=String(p.need); needBox.classList.add('filled');
+    setTagState('tagNeed','done');
     $('blBrace').classList.add('lit');
   },520);
   later(function(){ $('boardTen').classList.add('flash'); },900);
@@ -965,6 +1086,7 @@ function boardStep2(tk){
   var p=S.problem; if(!p||p.kind!=='board') return;
   var restBox=p.target==='second'?$('bxR'):$('bxL');
   restBox.textContent=String(p.rest); restBox.classList.add('filled');
+  setTagState('tagRest','done');
   $('blBottom').classList.add('lit');
   setEq([num(10,'green'),op('+'),num(p.rest,'orange'),op('='),num('?','unknown')]);
   setHint('凑成十，加剩数');
@@ -982,6 +1104,7 @@ function boardStep2(tk){
 function boardFinal(){
   var p=S.problem;
   $('beSum').textContent=String(p.sum); $('beSum').classList.add('done');
+  setTagState('tagSum','done');
   setEq([num(p.a,'blue'),op('+'),num(p.b,'orange'),op('='),num(p.sum,'green hot')]);
   setHint('思路：'+p.a+'+'+p.b+' → '+p.Y+'+'+p.need+'=10 → 10+'+p.rest+'='+p.sum);
   renderSteps(3); boardCoach(3,p);
@@ -989,7 +1112,7 @@ function boardFinal(){
   celebrate('太棒了！'+p.a+' + '+p.b+' = '+p.sum,function(){ if(S.autoNext && !S.demo) genBoard(); },true);
 }
 
-/* 板书引导演示：像老师一样分步带做——光圈聚焦 → 分叉连线生长 → 数字弹入框 → 凑十徽章 → 加剩数，配语音与口语讲解；演示不计星 */
+/* 板书引导演示：从当前未完成的一步接着讲，已填的框保留；配语音与口语讲解，不计星 */
 function boardGuide(){
   if(S.demo) return;
   var p=S.problem;
@@ -1000,50 +1123,86 @@ function boardGuide(){
   var tk=bump(); S.demo=true;
   var bs=$('options').querySelectorAll('button');
   for(var bi=0;bi<bs.length;bi++){ bs[bi].disabled=true; bs[bi].classList.remove('correct','wrong'); }
-  drawBoardSkeleton(p);
-  setEq([num(p.a,'blue'),op('+'),num(p.b,'orange'),op('='),num('?','unknown')]);
-  renderSteps(0);
   var needBox=p.target==='second'?$('bxL'):$('bxR');
   var restBox=p.target==='second'?$('bxR'):$('bxL');
+  var start=p.step||0;
+  if(start===0&&needBox.textContent) start=1;
+  if(start===1&&restBox.textContent) start=2;
   function ok(){ return tk===S.token&&S.demo; }
   function say(t,note){ $('qText').textContent=t; speak(t);
     if(note){ $('feedback').textContent=note; $('feedback').className='feedback good'; } }
-  setBoardFocus(0,p);
-  say('\u2460 先看 '+p.Y+'，给它凑成 10，还差 '+p.need+' 个',
-      '\u627e\u670b\u53cb\uff1a'+p.Y+' 和 '+p.need+' \u6b63\u597d\u662f 10');
-  later(function(){
-    if(!ok())return;
-    $('blForkL').classList.add('lit');
-    later(function(){ if(ok()) $('blForkR').classList.add('lit'); },220);
+  /* 恢复已完成步骤的板书状态，不重播动画 */
+  if(start>=1){
+    $('blForkL').classList.add('lit'); $('blForkR').classList.add('lit');
+    $('blBrace').classList.add('lit'); $('boardTen').classList.add('flash');
+    needBox.textContent=String(p.need); needBox.classList.add('filled');
+    setTagState('tagNeed','done');
+    setEq([num(p.X,'purple'),op('='),num(p.need,'orange'),op('+'),num('?','unknown')]);
+  }
+  if(start>=2){
+    $('blBottom').classList.add('lit');
+    restBox.textContent=String(p.rest); restBox.classList.add('filled');
+    setTagState('tagRest','done');
+    setEq([num(10,'green'),op('+'),num(p.rest,'orange'),op('='),num('?','unknown')]);
+  }
+  renderSteps(start); setBoardFocus(start,p);
+  function finish(){
     later(function(){
       if(!ok())return;
-      needBox.textContent=String(p.need); needBox.classList.add('filled');
-      $('blBrace').classList.add('lit'); $('boardTen').classList.add('flash');
-      setEq([num(p.X,'purple'),op('='),num(p.need,'orange'),op('+'),num('?','unknown')]);
-      renderSteps(1); setBoardFocus(1,p);
-      say('\u2461 把 '+p.X+' 拆成 '+p.need+' 和 '+p.rest+'，借走 '+p.need+'，还剩 '+p.rest,
-          '\u62c6\u4e00\u62c6\uff1a'+p.X+' \u62c6\u6210 '+p.need+' \u548c '+p.rest);
+      $('beSum').textContent=String(p.sum); $('beSum').classList.add('done');
+      setTagState('tagSum','done');
+      setEq([num(p.a,'blue'),op('+'),num(p.b,'orange'),op('='),num(p.sum,'green hot')]);
+      setHint('思路：'+p.a+'+'+p.b+' → '+p.Y+'+'+p.need+'=10 → 10+'+p.rest+'='+p.sum);
+      renderSteps(3); setBoardFocus(3,p); p.phase='done';
+      say('做完啦！'+p.a+' + '+p.b+' = '+p.sum+'，换一题你自己试试',
+          '思路：'+p.a+'+'+p.b+' → '+p.Y+'+'+p.need+'=10 → 10+'+p.rest+'='+p.sum);
+      confetti(40); beep('right'); S.demo=false;
+    },1200);
+  }
+  function doRest(delay){
+    later(function(){
+      if(!ok())return;
+      restBox.textContent=String(p.rest); restBox.classList.add('filled');
+      setTagState('tagRest','done');
+      $('blBottom').classList.add('lit');
+      setEq([num(10,'green'),op('+'),num(p.rest,'orange'),op('='),num('?','unknown')]);
+      renderSteps(2); setBoardFocus(2,p);
+      say('② 把 '+p.X+' 拆成 '+p.need+' 和 '+p.rest+'，借走 '+p.need+'，还剩 '+p.rest,
+          '拆一拆：'+p.X+' 拆成 '+p.need+' 和 '+p.rest);
+      finish();
+    },delay||0);
+  }
+  function doNeed(){
+    later(function(){
+      if(!ok())return;
+      $('blForkL').classList.add('lit');
+      later(function(){ if(ok()) $('blForkR').classList.add('lit'); },220);
       later(function(){
         if(!ok())return;
-        restBox.textContent=String(p.rest); restBox.classList.add('filled');
-        $('blBottom').classList.add('lit');
-        setEq([num(10,'green'),op('+'),num(p.rest,'orange'),op('='),num('?','unknown')]);
-        renderSteps(2); setBoardFocus(2,p);
-        say('\u2462 凑成 10 啦！10 再往后数 '+p.rest+' 个，就是 '+p.sum,
-            '\u52a0\u5269\u6570\uff1a10 + '+p.rest+' = '+p.sum);
-        later(function(){
-          if(!ok())return;
-          $('beSum').textContent=String(p.sum); $('beSum').classList.add('done');
-          setEq([num(p.a,'blue'),op('+'),num(p.b,'orange'),op('='),num(p.sum,'green hot')]);
-          setHint('\u601d\u8def\uff1a'+p.a+'+'+p.b+' \u2192 '+p.Y+'+'+p.need+'=10 \u2192 10+'+p.rest+'='+p.sum);
-          renderSteps(3); setBoardFocus(3,p); p.phase='done';
-          say('\u505a\u5b8c\u5566\uff01'+p.a+' + '+p.b+' = '+p.sum+' \uff0c\u6362\u4e00\u9898\u4f60\u81ea\u5df1\u8bd5\u8bd5',
-              '\u601d\u8def\uff1a'+p.a+'+'+p.b+' \u2192 '+p.Y+'+'+p.need+'=10 \u2192 10+'+p.rest+'='+p.sum);
-          confetti(40); beep('right'); S.demo=false;
-        },1700);
-      },2100);
-    },900);
-  },200);
+        needBox.textContent=String(p.need); needBox.classList.add('filled');
+        setTagState('tagNeed','done');
+        $('blBrace').classList.add('lit'); $('boardTen').classList.add('flash');
+        setEq([num(p.X,'purple'),op('='),num(p.need,'orange'),op('+'),num('?','unknown')]);
+        renderSteps(1); setBoardFocus(1,p);
+        say('② 把 '+p.X+' 拆成 '+p.need+' 和 '+p.rest+'，借走 '+p.need+'，还剩 '+p.rest,
+            '拆一拆：'+p.X+' 拆成 '+p.need+' 和 '+p.rest);
+        doRest(2100);
+      },900);
+    },200);
+  }
+  if(start===0){
+    say('① 先看 '+p.Y+'，给它凑成 10，还差 '+p.need+' 个',
+        '找朋友：'+p.Y+' 和 '+p.need+' 正好是 10');
+    doNeed();
+  }else if(start===1){
+    say('② 把 '+p.X+' 拆成 '+p.need+' 和 '+p.rest+'，借走 '+p.need+'，还剩 '+p.rest,
+        '拆一拆：'+p.X+' 拆成 '+p.need+' 和 '+p.rest);
+    doRest(400);
+  }else{
+    say('③ 凑成 10 啦！10 再往后数 '+p.rest+' 个，就是 '+p.sum,
+        '加剩数：10 + '+p.rest+' = '+p.sum);
+    finish();
+  }
 }
 
 /* ================= 公共操作 ================= */
@@ -1198,6 +1357,13 @@ function bindEvents(){
   $('settingsToggle').onclick=function(){
     document.body.classList.toggle('set-open');
     fitStage();
+  };
+  $('reportBtn').onclick=function(){ renderReport(); $('reportMask').classList.add('show'); };
+  $('rpClose').onclick=function(){ $('reportMask').classList.remove('show'); };
+  $('reportMask').onclick=function(e){ if(e.target===this) this.classList.remove('show'); };
+  $('rpReset').onclick=function(){
+    stats={date:todayStr(),answers:0,correct:0,wrong:[0,0,0]};
+    saveStats(); renderReport();
   };
   window.addEventListener('resize',fitStage);
   window.addEventListener('orientationchange',function(){ setTimeout(fitStage,120); });
