@@ -148,11 +148,12 @@ h1{font-size:clamp(19px,4.4vw,27px);margin:0;letter-spacing:.5px}
 /* ---------- 板书式凑十（练习册分合图） ---------- */
 .board{position:absolute;inset:0;display:none;z-index:2}
 .board-svg{position:absolute;left:0;top:0;width:720px;height:320px;pointer-events:none}
+.board-plus-svg{position:absolute;left:0;top:0;width:720px;height:320px;pointer-events:none;z-index:6}
 .bl{fill:none;stroke:#c7d6ee;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .4s,stroke-width .4s}
 .bl.lit{stroke:#f0a127;stroke-width:4;animation:lineGlow .55s ease}
 .bl.hot.lit{stroke:#2ec28c}
 .bl.cool.lit{stroke:#8f7bff}
-.bl-plus{font-size:22px;font-weight:900;fill:#6b7f9e}
+.bl-plus{font-size:25px;font-weight:900;fill:#2a5ea8;stroke:#fff;stroke-width:6px;paint-order:stroke fill;stroke-linejoin:round}
 @keyframes lineGlow{0%{stroke-width:3}50%{stroke-width:6}100%{stroke-width:4}}
 .bn{position:absolute;display:flex;align-items:center;justify-content:center;font-weight:900}
 .be-num{top:26px;width:64px;height:62px;font-size:36px;border-radius:16px;background:#eaf2ff;border:3px solid #c9dcfb;color:#2a5ea8}
@@ -261,7 +262,7 @@ body.mode-board .eq{top:244px;height:46px;gap:5px}
 body.mode-board .eq-item.num{min-width:40px;height:40px;font-size:22px;border-width:2px;border-radius:11px;padding:0 4px}
 body.mode-board .eq-item.op{min-width:20px;font-size:22px}
 body.mode-board .hint-line{top:290px;height:24px;line-height:24px;font-size:13px}
-body.mode-board .bl-plus{font-size:20px}
+body.mode-board .bl-plus{font-size:22px}
 
 /* ---------- Pad / 桌面：板书模式一屏排布，无需滚动 ---------- */
 @media (min-width:700px){
@@ -447,8 +448,6 @@ body.mode-board footer{display:none}
           <path id="blForkR" class="bl" pathLength="100" d=""/>
           <path id="blBrace" class="bl hot" pathLength="100" d=""/>
           <path id="blBottom" class="bl cool" pathLength="100" d=""/>
-          <text id="blPlus1" class="bl-plus" x="0" y="0">+</text>
-          <text id="blPlus2" class="bl-plus" x="0" y="0">+</text>
         </svg>
         <div class="bn be-num" id="beA" style="left:222px"></div>
         <div class="bn be-op" id="bePlus1" style="left:286px">+</div>
@@ -462,6 +461,10 @@ body.mode-board footer{display:none}
         <div class="bn bx-tag" id="tagSum">3</div>
         <div class="bn ten-chip" id="boardTen">10</div>
         <div class="board-coach" id="boardCoach"></div>
+        <svg class="board-plus-svg" viewBox="0 0 720 320" aria-hidden="true">
+          <text id="blPlus1" class="bl-plus" x="0" y="0">+</text>
+          <text id="blPlus2" class="bl-plus" x="0" y="0">+</text>
+        </svg>
       </div>
       <div class="balls" id="balls"></div>
       <div class="eq" id="eq"></div>
@@ -763,7 +766,7 @@ function ask(text,opts,correct,onRight,speakText){
   });
   speak(speakText||text);
 }
-function celebrate(msg,next,big){
+function celebrate(msg,next,big,ms){
   S.star++; S.combo++;
   $('starCount').textContent=String(S.star);
   var text=msg||'答对啦，真棒！';
@@ -771,7 +774,7 @@ function celebrate(msg,next,big){
   $('feedback').textContent=text;
   $('feedback').className='feedback good';
   beep('right'); speak(msg||'答对啦'); confetti(big?64:20);
-  if(next) later(next,big?1500:1050);
+  if(next) later(next, ms || (big?1500:1050));
 }
 
 /* ================= 模式一：数的分解 ================= */
@@ -832,7 +835,7 @@ function genSplit(forced){
     setEq(splitEq(p,true));
     setHint(n+' 可以分成 '+k+' 和 '+m+'；'+k+' 和 '+m+' 合起来就是 '+n);
     setTitle('答对啦！'+n+' = '+k+' + '+m);
-    celebrate('答对啦！',function(){ if(S.autoNext && !S.demo) genSplit(); },false);
+    celebrate('答对啦！',function(){ if(S.autoNext && !S.demo) genSplit(); },false,850);
   },q);
 }
 function animateSplit(tk,p){
@@ -924,7 +927,7 @@ function tenFinish(){
     setEq([num(a,'blue'),op('+'),num(b,'orange'),op('='),num(sum,'green hot')]);
     setHint('思路：'+a+'+'+b+' → '+a+'+'+need+'+'+rest+' → 10+'+rest+' = '+sum);
     setTitle('学会啦！凑十法');
-    celebrate('太厉害了！'+a+' + '+b+' = '+sum,function(){ if(S.autoNext && !S.demo) genTen(); },true);
+    celebrate('太厉害了！'+a+' + '+b+' = '+sum,function(){ if(S.autoNext && !S.demo) genTen(); },true,850);
   },'十加 '+rest+' 等于几');
 }
 
@@ -995,7 +998,7 @@ function drawBoardSkeleton(p){
   $('blBrace').setAttribute('d','M '+g.keepCx+' 62 V 176 H '+g.needCx+' V 164');
   $('blBottom').setAttribute('d','M '+g.tenCx+' 218 V 240 H '+g.restCx+' V 164');
   $('blPlus1').setAttribute('x',String(Math.round(g.keepCx+(g.needCx-g.keepCx)*0.55)));
-  $('blPlus1').setAttribute('y','170');
+  $('blPlus1').setAttribute('y','176');
   $('blPlus2').setAttribute('x',String(Math.round((g.tenCx+g.restCx)/2)));
   $('blPlus2').setAttribute('y','234');
   resetBoardLines();
@@ -1045,6 +1048,13 @@ function genBoard(forced){
   var ab = forced.a!==undefined ? {a:forced.a,b:forced.b} : pickBoardAB();
   var a=ab.a,b=ab.b,sum=a+b;
   var target = forced.target || (S.boardLayout==='mix' ? (Math.random()<0.5?'second':'first') : S.boardLayout);
+  /* 凑十法标准教法：看大数、拆小数。Y=凑十的数恒为大数，X=被拆的数恒为小数。
+     版式只决定大数摆在算式前还是后：second=大数在前拆后面，first=大数在后拆前面。
+     重播(forced)保留原题数值与拆法，不重新排序。 */
+  if(forced.a===undefined){
+    var big=Math.max(a,b), small=Math.min(a,b);
+    if(target==='second'){ a=big; b=small; } else { a=small; b=big; }
+  }
   var X=target==='second'?b:a, Y=target==='second'?a:b;
   var need=10-Y, rest=X-need;
   var p={kind:'board',a:a,b:b,sum:sum,target:target,X:X,Y:Y,need:need,rest:rest,step:0,phase:'ask'};
@@ -1109,7 +1119,7 @@ function boardFinal(){
   setHint('思路：'+p.a+'+'+p.b+' → '+p.Y+'+'+p.need+'=10 → 10+'+p.rest+'='+p.sum);
   renderSteps(3); boardCoach(3,p);
   $('qText').textContent='做完啦！'+p.a+' + '+p.b+' = '+p.sum+'，你是凑十小达人！';
-  celebrate('太棒了！'+p.a+' + '+p.b+' = '+p.sum,function(){ if(S.autoNext && !S.demo) genBoard(); },true);
+  celebrate('太棒了！'+p.a+' + '+p.b+' = '+p.sum,function(){ if(S.autoNext && !S.demo) genBoard(); },true,850);
 }
 
 /* 板书引导演示：从当前未完成的一步接着讲，已填的框保留；配语音与口语讲解，不计星 */
